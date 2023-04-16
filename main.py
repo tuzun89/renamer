@@ -1,5 +1,4 @@
 import sys
-from renamer import Renamer
 from extractor import Extractor
 from pprint import pprint
 
@@ -10,8 +9,8 @@ if __name__ == '__main__':
     path = sys.argv[1]
     
 extractor = Extractor()
-isbn_list = extractor.extractor()
+isbn_list = extractor.extractISBNs()
 
-pprint(len(isbn_list))
+print("\nNumber of ISBNs found:", len(isbn_list), "\n")
 pprint(isbn_list)
     

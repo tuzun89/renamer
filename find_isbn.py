@@ -1,7 +1,7 @@
 import PyPDF2
 import re
 
-class Renamer:
+class FindISBN:
     def __init__(self) -> None:
         self.isbn = None
         self.check_digit = None
@@ -9,7 +9,7 @@ class Renamer:
     def analyse_pdf(self, path):
         with open(path, 'rb') as pdf_file:
             pdf_reader = PyPDF2.PdfReader(pdf_file)
-            print(len(pdf_reader.pages))
+            #print(len(pdf_reader.pages))
 
             for page_num in range(len(pdf_reader.pages)):
                 page = pdf_reader.pages[page_num]
