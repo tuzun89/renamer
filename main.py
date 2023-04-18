@@ -1,6 +1,7 @@
 import sys
 import argparse
 from extractor import Extractor
+import requestISBN
 from pprint import pprint
 
 
@@ -16,8 +17,14 @@ def main(args):
     extractor = Extractor()
     isbn_list = extractor.extractISBNs(args.path)
     print("\nNumber of ISBNs found:", len(isbn_list), "\n")
-    pprint(isbn_list)
+    #pprint(isbn_list)
+    isbns = requestISBN.splitDict(isbn_list)
+    json = requestISBN.requestISBN(isbns)
+    #pprint(json)
+    requestISBN.sortJson(json)
 
 
 if __name__ == '__main__':
     main(args())
+    
+
