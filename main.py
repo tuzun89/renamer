@@ -12,5 +12,6 @@ extractor = Extractor()
 isbn_list = extractor.extractISBNs()
 
 print("\nNumber of ISBNs found:", len(isbn_list), "\n")
+
 pprint(isbn_list)
     

@@ -22,11 +22,7 @@ class Extractor:
                         #self.isbn_list.append(isbn)
                         self.dict.update({file_path:isbn})
 
-            pprint(self.dict)
         return self.dict
-    
-    # each time an isbn is found, add it to a dictionary with the file path as the key
-    # return the dictionary at the end of the function
 
     
     
