@@ -17,5 +17,8 @@ class Extractor:
 
                     if isbn:
                         self.dict.update({file_path: isbn})
-
+                        
+                elif os.path.isdir(file_path):
+                    self.extractISBNs(file_path)
+        
         return self.dict
