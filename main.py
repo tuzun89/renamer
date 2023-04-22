@@ -19,7 +19,8 @@ def main(args):
     print("\nNumber of ISBNs found:", len(isbn_list), "\n")
     #pprint(isbn_list)
     isbns = requestISBN.splitDict(isbn_list)
-    json = requestISBN.requestISBN(isbns)
+    modified = requestISBN.removeDashes(isbns)
+    json = requestISBN.requestISBN(modified)
     #pprint(json)
     requestISBN.sortJson(json)
 
