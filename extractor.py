@@ -20,5 +20,4 @@ class Extractor:
                         
                 elif os.path.isdir(file_path):
                     self.extractISBNs(file_path)
-        
         return self.dict
