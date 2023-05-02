@@ -3,8 +3,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Ignore test folder
+# Ignore folders
 test
+bin
+include
+lib
+lib64
+renamer
 
 # Ignore pdfs
 *.pdf
+
+# configs
+pyvenv.cfg
