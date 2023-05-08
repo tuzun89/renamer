@@ -23,7 +23,7 @@ def main(args):
     pprint(isbn_list)
     print()
     isbns = requestISBN.splitDict(isbn_list)
-    print(isbns)
+    #print(isbns)
     modified = requestISBN.removeDashes(isbns)
     print("Modified ISBN:", modified)
     json = requestISBN.requestISBN(modified)

@@ -5,6 +5,7 @@ __pycache__/
 
 # Ignore folders
 test
+test*
 bin
 include
 lib

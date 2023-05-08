@@ -20,7 +20,7 @@ class FindISBN:
                     # Regex below to match these conditions to find a number that matches the ISBN formats.
                     # Regex does not match non-text ISBNs.
                     isbn_pattern = re.compile(
-                        r"(?P<isbn>\b(978(?:-?\d{1,5}){2}-?\d{1,6}-?\d)\b)"
+                        r"(?:ISBN(?:-1[03])?:?\ )?(?P<isbn>(?:\d[\ |-]?){9,13}[\d|X])"
                     )
                     match = isbn_pattern.search(text)
 
@@ -43,3 +43,10 @@ class FindISBN:
 
     def get_not_isbn(self):
         return self.not_isbn
+    
+    """
+    checks if ISBN is valid
+    """
+    def validate_isbn(self):
+        
+        pass

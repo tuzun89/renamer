@@ -23,10 +23,16 @@ not necessary as Google API can handle dashes in ISBN
 
 
 def removeDashes(isbn):
+    print("ISBN:", isbn)
     modified_isbn = []
     for i in isbn:
-        modified_isbn.append(i.replace("-", ""))
+        modified_isbn.append(i.replace("-", "").replace(" ", ""))
     return modified_isbn
+
+
+"""
+make sure that you are not connected via VPN or proxy as Google API will not work
+"""
 
 
 def requestISBN(modified_isbn):
@@ -48,12 +54,7 @@ def sortJson(json_list, isbn_list):
 
     try:
         for i in json_list:
-            volumeInfo = i.get("volumeInfo")
-            if not volumeInfo:
-                print("No volume information found", i)
-                continue
             volumeInfo = i["items"][0]["volumeInfo"]
-            
             if "items" in i and volumeInfo and "title" and "author":
                 author = volumeInfo["authors"][0]
                 parts = author.split()
@@ -72,7 +73,7 @@ def sortJson(json_list, isbn_list):
                 print("Required information not found")
 
     except Exception as e:
-        print("\nError:", e, "\n")
+        print("\nJSON parsing error:", e, "\n")
 
     try:
         for key, value in isbn_list.items():
@@ -80,8 +81,8 @@ def sortJson(json_list, isbn_list):
             books.pop(0)
 
     except Exception as e:
-        print("\nError:", e, "\n")
+        print("\nDictionary item creation error:", e, "\n")
 
-    # print(books)
-    # print(books_dict)
+    #print(books)
+    #print(books_dict)
     return books_dict
