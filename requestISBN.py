@@ -4,6 +4,8 @@ import re
 """
 obtain dict from extractor class and split key value pair to two lists
 """
+
+
 def splitDict(dict):
     file = []
     isbn = []
@@ -14,14 +16,18 @@ def splitDict(dict):
     # print(isbn)
     return isbn
 
+
 """"
 not necessary as Google API can handle dashes in ISBN
 """
+
+
 def removeDashes(isbn):
     modified_isbn = []
     for i in isbn:
         modified_isbn.append(i.replace("-", ""))
     return modified_isbn
+
 
 def requestISBN(modified_isbn):
     json_list = []
@@ -35,32 +41,47 @@ def requestISBN(modified_isbn):
     # print(url_list)
     return json_list
 
+
 def sortJson(json_list, isbn_list):
     books = []
     books_dict = {}
-    for i in json_list:
-        volumeInfo = i["items"][0]["volumeInfo"]
-        if "items" in i and volumeInfo and "title" and "author":
-            author = volumeInfo["authors"][0]
-            parts = author.split()
-            # print(parts)
-            if len(parts) > 1:
-                surname = parts[-1]
-                initials = "".join([p[0] + "." for p in parts[:-1]])
-                author_name = surname + ", " + initials
-            else:
-                author_name = author
-            book_name = author_name + "_" + volumeInfo["title"] + ".pdf"
-            #book_name = re.sub(r'[^A-Za-z0-9]+', '_', book_name)
-            books.append(book_name)
-            #print(books)
-        else:
-            print("Required information not found")
 
-    for key, value in isbn_list.items():
-        books_dict.update({key: books[0]})
-        books.pop(0)
+    try:
+        for i in json_list:
+            volumeInfo = i.get("volumeInfo")
+            if not volumeInfo:
+                print("No volume information found", i)
+                continue
+            volumeInfo = i["items"][0]["volumeInfo"]
+            
+            if "items" in i and volumeInfo and "title" and "author":
+                author = volumeInfo["authors"][0]
+                parts = author.split()
+                # print(parts)
+                if len(parts) > 1:
+                    surname = parts[-1]
+                    initials = "".join([p[0] + "." for p in parts[:-1]])
+                    author_name = surname + ", " + initials
+                else:
+                    author_name = author
+                book_name = author_name + "_" + volumeInfo["title"] + ".pdf"
+                # book_name = re.sub(r'[^A-Za-z0-9]+', '_', book_name)
+                books.append(book_name)
+                # print(books)
+            else:
+                print("Required information not found")
+
+    except Exception as e:
+        print("\nError:", e, "\n")
+
+    try:
+        for key, value in isbn_list.items():
+            books_dict.update({key: books[0]})
+            books.pop(0)
+
+    except Exception as e:
+        print("\nError:", e, "\n")
 
     # print(books)
-    print(books_dict)
+    # print(books_dict)
     return books_dict

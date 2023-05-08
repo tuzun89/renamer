@@ -9,6 +9,7 @@ class FindISBN:
 
     def analyse_pdf(self, path):
         try:
+            #resources_dict = {}
             with open(path, "rb") as pdf_file:
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
                 for page_num in range(len(pdf_reader.pages)):
@@ -17,8 +18,9 @@ class FindISBN:
                     # ISBN number maybe of 2no formats (-13 or -10) and
                     # the number might not be called up as ISBN on any given page
                     # Regex below to match these conditions to find a number that matches the ISBN formats.
+                    # Regex does not match non-text ISBNs.
                     isbn_pattern = re.compile(
-                        r"(?P<isbn>\d{3}-\d{1,5}-\d{1,7}-\d{1,6}-\d)"
+                        r"(?P<isbn>\b(978(?:-?\d{1,5}){2}-?\d{1,6}-?\d)\b)"
                     )
                     match = isbn_pattern.search(text)
 
@@ -33,7 +35,7 @@ class FindISBN:
 
                 pdf_file.close()
 
-        except PyPDF2.utils.PdfReadError:
+        except PyPDF2._utils.PdfStreamError:
             print("\nError reading PDF file:", path)
 
     def get_isbn(self):
