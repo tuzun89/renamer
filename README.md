@@ -20,6 +20,6 @@
         - ~~Loop until located~~
     - ~~Use PyPDF2 lib functions~~
 3. ~~Query ISBN extract with an ISBN API, example:~~
-https://openlibrary.org/isbn/0451526538.json
+https://www.googleapis.com/books/v1/volumes?q=isbn:
 4. ~~Extract Title, Author from json response~~
-5. Rename original file name using the json response data
+5. ~~Rename original file name using the json response data~~

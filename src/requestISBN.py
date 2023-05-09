@@ -38,10 +38,15 @@ make sure that you are not connected via VPN or proxy as Google API will not wor
 def requestISBN(modified_isbn):
     json_list = []
     url_list = []
+    invalid_isbn = []
     for i in modified_isbn:
         url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + i
         response = requests.get(url)
-        json_list.append(response.json())
+        data = response.json()
+        json_list.append(data)
+        if data.get("totalItems") == 0:
+            invalid_isbn.append(i)
+            print("Invalid ISBN:", invalid_isbn)
         url_list.append(url)
     # print(json_list)
     # print(url_list)
@@ -51,6 +56,7 @@ def requestISBN(modified_isbn):
 def sortJson(json_list, isbn_list):
     books = []
     books_dict = {}
+    failed_reqs = []
 
     try:
         for i in json_list:
@@ -74,14 +80,17 @@ def sortJson(json_list, isbn_list):
 
     except Exception as e:
         print("\nJSON parsing error:", e, i, "\n")
-        
-    try:
-        for key, value in isbn_list.items():
+        failed_reqs.append(i)
+        print("Failed requests:", failed_reqs, "\n")
+
+    
+    for key, value in isbn_list.items():
+        try:
             books_dict.update({key: books[0]})
             books.pop(0)
-
-    except Exception as e:
-        print("Dictionary item creation error:", e, key, "\n")
+        except Exception as e:
+            print("Dictionary item creation error:", e, {key:value}, "\n")
+            continue
 
     #print(books)
     #print(books_dict)
