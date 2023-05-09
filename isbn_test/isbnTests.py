@@ -4,7 +4,7 @@ import re
 # isbn_pattern = r"\bISBN(?:-1[03])?:?(?:\s+)?((?=(?:\d(?:[- ])?){9}[\dX])(?:\d(?:[- ])?){12}[\dX]|\d{9}[\dX])\b"
 # isbn_pattern = re.compile(r"(?P<isbn>((\b97[89]-?\b)-[0-1+]-?-\d{5,}-?\d{3,}-?[\dXx{1}])|(0-\d{2}-?\d{5,}-?[\dXx{1}])|(978)[0-1+]\d{9})") # best one so far
 
-isbn_pattern = re.compile(r"(?P<isbn>((?:(?<=ISBN: )|(?<=ISBN-13: ))?(\d{3})-(\d{1})-(\d{3,5})-(\d{3,5})-([\dXx{1}])|(0-\d{2}-?\d{5,}-?[\dXx{1}])|(978)[0-1+]\d{9}))")
+isbn_pattern = re.compile(r"(?P<isbn>((?:(?<=ISBN: )|(?<=ISBN-13: ))?(\d{3})-(\d{1})-(\d{1,7})-(\d{1,7})-([\dXx{1}])|(0-\d{2}-?\d{5,}-?[\dXx{1}])|(978)[0-1+]\d{9}))")
 
 # Define the ISBN numbers to be tested
 isbn_numbers = [
@@ -16,7 +16,9 @@ isbn_numbers = [
     ("978-1-78913-450-6", True), # ISBN 
     ("978-1-59749-957-6", True), # ISBN: 
     ("978-1-59749-957-X", True),
+    ("978-0-9847828-5-7", True), # Cracking the coding interview
     ("671-3447ISBN-13: 978-0-13-235088-4", True),
+    ("ISBN 978-1-83921-206-2", True),
     ("4ISBN-10:        0-13-235088-2Text printed", True),
 
     # Invalid ISBNs
