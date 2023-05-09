@@ -26,7 +26,7 @@ def removeDashes(isbn):
     print("ISBN:", isbn)
     modified_isbn = []
     for i in isbn:
-        modified_isbn.append(i.replace("-", "").replace(" ", ""))
+        str(modified_isbn.append(i.replace("-", "").replace(" ", "").replace("ISBN", "")))
     return modified_isbn
 
 
