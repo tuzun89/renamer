@@ -73,15 +73,15 @@ def sortJson(json_list, isbn_list):
                 print("Required information not found")
 
     except Exception as e:
-        print("\nJSON parsing error:", e, "\n")
-
+        print("\nJSON parsing error:", e, i, "\n")
+        
     try:
         for key, value in isbn_list.items():
             books_dict.update({key: books[0]})
             books.pop(0)
 
     except Exception as e:
-        print("\nDictionary item creation error:", e, "\n")
+        print("Dictionary item creation error:", e, key, "\n")
 
     #print(books)
     #print(books_dict)
