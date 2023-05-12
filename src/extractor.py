@@ -13,7 +13,7 @@ class Extractor:
                     file_path = os.path.join(root, file_name)
                     find = FindISBN()
                     find.analyse_pdf(file_path)
-                    print(file_path)
+                    #print(file_path)
                     isbn = find.get_isbn()
 
                     if isbn:

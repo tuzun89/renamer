@@ -11,4 +11,4 @@ class Renamer:
             os.rename(old_path, new_path)
             print("Renamed", old_path, "to", new_path)
             self.books_dict.update({old_path: new_path})
-        print("Number of renamed pdfs: ", len(self.books_dict))
+        print("\nNumber of renamed pdfs: ", len(self.books_dict), "\n")

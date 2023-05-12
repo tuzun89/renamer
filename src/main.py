@@ -25,7 +25,7 @@ def main(args):
     isbns = requestISBN.splitDict(isbn_list)
     #print(isbns)
     modified = requestISBN.removeDashes(isbns)
-    print("Modified ISBN:", modified)
+    print(f"Modified ISBN: {modified} \n")
     json = requestISBN.requestISBN(modified)
     # pprint(json)
     req = requestISBN.sortJson(json, isbn_list)

@@ -9,7 +9,7 @@ class FindISBN:
 
     def analyse_pdf(self, path):
         try:
-            #resources_dict = {}
+            # resources_dict = {}
             with open(path, "rb") as pdf_file:
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
                 for page_num in range(len(pdf_reader.pages)):
@@ -20,13 +20,14 @@ class FindISBN:
                     # Regex below to match these conditions to find a number that matches the ISBN formats.
                     # Regex does not match non-text ISBNs.
                     isbn_pattern = re.compile(
-                        r"(?P<isbn>((?:(?<=ISBN: )|(?<=ISBN-13: ))?(\d{3})-(\d{1})-(\d{1,7})-(\d{1,7})-([\dXx{1}])|(0-\d{2}-?\d{5,}-?[\dXx{1}])|(978)[0-1+]\d{9}))"
+                        r"(?P<isbn>((?:(?<=ISBN[013: ]))?(97[89])-?(\d{1,5})-?(\d{1,7})-?(\d{1,6})-([\dXx{1}])|(0-\d{2}-?\d{5,}-?[\dXx{1}])|(978)[0-1+]\d{9}))"
                     )
-                    
+
                     match = isbn_pattern.search(text)
-                    
+
                     if match:
                         isbn = match.group("isbn")
+                        self.validate_isbn(isbn)
                         self.isbn = isbn
                         break
 
@@ -44,10 +45,11 @@ class FindISBN:
 
     def get_not_isbn(self):
         return self.not_isbn
-    
+
     """
     checks if ISBN is valid
     """
-    def validate_isbn(self):
+
+    def validate_isbn(self, isbn):
         
         pass
