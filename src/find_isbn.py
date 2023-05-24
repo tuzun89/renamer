@@ -1,4 +1,6 @@
 import PyPDF2
+# PyPDF2 is no longer maintained. Use pypdf instead.
+# to-do: replace PyPDF2 with pypdf --> https://pypi.org/project/pypdf/
 import re
 
 
@@ -39,6 +41,8 @@ class FindISBN:
                 pdf_file.close()
 
         except PyPDF2._utils.PdfStreamError:
+            # PyPDF2._utils no longer exists.
+            # https://pypdf.readthedocs.io/en/latest/user/suppress-warnings.html?highlight=error
             print("\nError reading PDF file:", path)
 
     def get_isbn(self):
