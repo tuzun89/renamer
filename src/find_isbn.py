@@ -29,6 +29,7 @@ class FindISBN:
                         isbn = match.group("isbn")
                         self.validate_isbn(isbn)
                         self.isbn = isbn
+                        print(f"Processing: {path}")
                         break
 
                 if not match:
@@ -46,10 +47,8 @@ class FindISBN:
     def get_not_isbn(self):
         return self.not_isbn
 
-    """
-    checks if ISBN is valid
-    """
-
     def validate_isbn(self, isbn):
-        
+        """
+        checks if ISBN is valid
+        """
         pass

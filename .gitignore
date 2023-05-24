@@ -11,6 +11,7 @@ include
 lib
 lib64
 renamer
+.vscode
 
 # Ignore pdfs
 *.pdf
