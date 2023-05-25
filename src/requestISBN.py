@@ -1,5 +1,6 @@
 import requests
 import re
+from pprint import pprint
 
 invalid_isbn = []
 fallback_isbn = []
@@ -21,7 +22,8 @@ def splitDict(dict):
 
 def combine_dict(dict):
     global fallback_isbn
-    print(fallback_isbn)
+    if fallback_isbn:
+        print(f"Fallback ISBN: {fallback_isbn}")
     included_dict = {}
     filtered_dict = dict.copy()
     for key, value in dict.items():
@@ -30,8 +32,10 @@ def combine_dict(dict):
             included_dict.update({key: value})
         else:
             pass
-    print(filtered_dict)
-    print(included_dict)
+    if filtered_dict:
+        print(f"Filtered dictionary: {filtered_dict}\n")
+    if included_dict:
+        print(f"Included dictionary: {included_dict}\n")
     return filtered_dict, included_dict
 
 
@@ -76,7 +80,7 @@ def requestISBN(modified_isbn):
             except Exception as e:
                 # global invalid_isbn
                 invalid_isbn.append(isbn)
-                print("Invalid ISBN:", invalid_isbn)
+                print(f"Invalid ISBN: {invalid_isbn}")
                 # print(data)
         url_list.append(url)
         json_list.append(data)
@@ -207,7 +211,7 @@ def new_dict_builder(book_names, filtered_dict):
         except Exception as e:
             print("Dictionary item creation error:", e, {key: value}, "\n")
 
-    print(books_dict)
+    # print(books_dict)
 
     return books_dict
 

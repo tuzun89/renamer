@@ -7,7 +7,14 @@ class Extractor:
         self.dict = {}
 
     def extractISBNs(self, path):
+        """
+        Extracts ISBNs from all PDF files in a directory and its subdirectories.
+        Returns a dictionary with the path as key and the ISBN as value.
+        to-do: split into two functions for multithreading
+        """
         for root, dirs, files in os.walk(path):
+            if "no_isbns_found" in dirs:
+                dirs.remove("no_isbns_found")
             # number_of_files = len(files)
             # print(f"Number of files found: {number_of_files}")
             for file_name in files:
@@ -26,3 +33,8 @@ class Extractor:
                     self.extractISBNs(file_path)
 
         return self.dict  # number_of_files
+    
+
+
+    # def extract_files
+    # return list of all paths in original path (including subdirectories)

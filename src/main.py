@@ -62,7 +62,7 @@ class Main:
         books_list = requestISBN.sortJson(json_list)
         filtered_dict, included_dict = requestISBN.combine_dict(self.path_isbn_dict)
         google_books_dict = requestISBN.sort_json_dict(books_list, included_dict)
-        print(google_books_dict)
+        # print(google_books_dict)
 
         if len(google_books_dict) >= 1:
             self.renamer.rename(google_books_dict)
