@@ -1,6 +1,7 @@
 from find_isbn import FindISBN
 import os
 
+
 class Extractor:
     def __init__(self) -> None:
         self.path_isbn_dict = {}

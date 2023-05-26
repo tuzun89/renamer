@@ -1,6 +1,5 @@
 import os
 import time
-from requestISBN import sortJson
 
 from tqdm import tqdm
 
@@ -17,12 +16,10 @@ class Renamer:
                     os.rename(old_path, new_path)
                     if progess_bar_callback is not None:
                         progess_bar_callback(1)
-                    count += 1
-                    # print("Renamed", old_path, "to", new_path)
+                    count += 1                                        
                     self.books_dict.update({old_path: new_path})
-                    time.sleep(3)
+                    time.sleep(.1)
                     pbar.update(1)
-                    pbar.set_description(f"Renamed: {old_path} to {new_path}")
+                    pbar.set_description(f"Renamed: {new_name}")
                 else:
                     print("File not found:", old_path)
-        print("\nNumber of renamed pdfs: ", count, "\n")

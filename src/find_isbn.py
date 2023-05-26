@@ -23,6 +23,12 @@ class FindISBN:
         )
 
     def analyse_pdf(self, path):
+        """
+        extracts ISBN from PDF file using regex
+        if PyPDF2 fails, uses fallback method
+        if ISBN found send value to isbn variable
+        sends file to file_mover() if no ISBN found
+        """
         try:
             with open(path, "rb") as pdf_file:
                 # print(f"Processing: {path}")
@@ -55,8 +61,7 @@ class FindISBN:
                         self.validate_isbn(isbn)
                         self.isbn = isbn
                         break
-                    
-                if not match:
+                else:
                     self.not_isbn = path
                     print("\nNo ISBN found in", path)
                     self.file_mover()
@@ -117,7 +122,7 @@ class FindISBN:
                     raise e
 
             new_path = os.path.join(new_dir, file_name)
-            print(f"Moving file {file_name} to directory {new_path}")
+            # print(f"Moving file {file_name} to directory {new_path}")
             # shutil.move() moves a file or directory (src) to another location (dst)
             # high-level operation on files and collections of files
             # no need for low level os operations where new file names are created
