@@ -16,7 +16,7 @@ class Main:
     def parse_args(self):
         """
         generates command line arguments
-        
+
         returns the args object to be sent to main()
         """
         parser = argparse.ArgumentParser(
@@ -25,6 +25,15 @@ class Main:
         parser.add_argument("path", metavar="path", help="filepath required")
         args = parser.parse_args()
         return args
+
+    def print_fallback(self):
+        """
+        prints fallback ISBNs to console
+        """
+        print(
+            f"{len(self.isbn_request.fallback_isbn)}no fallback ISBN(s) detected: {self.isbn_request.fallback_isbn} --> ",
+            f"Number of ISBN(s) found in the OpenLibrary API: {len(self.json_list_openlib[:])}no \n",
+        )
 
     def openlib_isbn(self):
         """
@@ -35,9 +44,7 @@ class Main:
         """
         filtered_dict, included_dict = self.isbn_request.combine_dict()
 
-        print(
-            f"Number of ISBNs found in the OpenLibrary API: {len(self.json_list_openlib[:])} \n"
-        )
+        self.print_fallback()
 
         title, fixed_names = self.isbn_request.sort_openlib(self.json_list_openlib)
         # print("Sorted OpenLibrary data:", title, fixed_names)

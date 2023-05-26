@@ -23,3 +23,4 @@ class Renamer:
                     pbar.set_description(f"Renamed: {new_name}")
                 else:
                     print("File not found:", old_path)
+        print()

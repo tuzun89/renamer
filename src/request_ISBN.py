@@ -2,8 +2,8 @@ import requests
 
 
 class RequestISBN:
-    def __init__(self, isbn_dict):
-        self.isbn_dict = isbn_dict
+    def __init__(self, path_isbn_dict):
+        self.path_isbn_dict = path_isbn_dict
         self.invalid_isbn = []
         self.fallback_isbn = []
 
@@ -13,7 +13,7 @@ class RequestISBN:
         """
         file = []
         isbn = []
-        for key, value in self.isbn_dict.items():
+        for key, value in self.path_isbn_dict.items():
             file.append(key)
             isbn.append(value)
         # print(file)
@@ -27,11 +27,9 @@ class RequestISBN:
 
         returns filtered_dict(for OpenLib API) and included_dict(for GoogleBooks API)
         """
-        if self.fallback_isbn:
-            print(f"Fallback ISBN: {self.fallback_isbn}")
         included_dict = {}
-        filtered_dict = self.isbn_dict.copy()
-        for key, value in self.isbn_dict.items():
+        filtered_dict = self.path_isbn_dict.copy()
+        for key, value in self.path_isbn_dict.items():
             if value not in self.fallback_isbn:
                 del filtered_dict[key]
                 included_dict.update({key: value})
@@ -45,6 +43,9 @@ class RequestISBN:
         if included_dict:
             pass
             # print(f"Included dictionary: {included_dict}\n")
+        if self.fallback_isbn:
+            pass
+            # print(f"Fallback ISBN: {self.fallback_isbn}")
         return filtered_dict, included_dict
 
     def remove_dashes(self, isbn):
@@ -90,7 +91,6 @@ class RequestISBN:
                     data_open = response.json()
                     json_list_openlib.append(data_open)
                     self.fallback_isbn.append(isbn)
-                    # print(json_list_openlib)
                 except Exception as e:
                     # global invalid_isbn
                     self.invalid_isbn.append(isbn)
@@ -156,7 +156,7 @@ class RequestISBN:
                 # else:
                 #    failed_reqs.append(key)
             except Exception as e:
-                print("Dictionary item creation error:", e, {key: value}, "\n")
+                print(f"Dictionary item creation error: {e} {key: value}\n")
 
         # print(books)
         # print(books_dict)
