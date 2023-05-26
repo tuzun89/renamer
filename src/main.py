@@ -61,7 +61,7 @@ class Main:
         # print(google_books_dict)
 
         if len(google_books_dict) >= 1:
-            with tqdm(total=len(google_books_dict),desc="Renaming files") as pbar:
+            with tqdm(total=len(google_books_dict),desc="Google Books API renaming files") as pbar:
                 self.renamer.rename(google_books_dict, pbar.update)
 
         if type(json_list_openlib) == list and len(json_list_openlib) >= 1:
@@ -69,7 +69,7 @@ class Main:
                 self.json_list_openlib = json_list_openlib
                 new_books_dict = self.openlib_isbn()
                 if new_books_dict is not None:
-                    with tqdm(total=len(new_books_dict),desc="Renaming files") as pbar:
+                    with tqdm(total=len(new_books_dict),desc="Open Library API renaming files") as pbar:
                         self.renamer.rename(new_books_dict, pbar.update)
                     self.json_list_openlib = []
 
