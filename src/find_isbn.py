@@ -25,7 +25,7 @@ class FindISBN:
     def analyse_pdf(self, path):
         try:
             with open(path, "rb") as pdf_file:
-                print(f"Processing: {path}")
+                # print(f"Processing: {path}")
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
                 # Limit the number of pages to read, first 30 and last 10
                 if len(pdf_reader.pages) > 30:

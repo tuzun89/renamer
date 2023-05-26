@@ -1,11 +1,15 @@
 import sys
 import os
 import argparse
+import cProfile
+import pstats
+
 from extractor import Extractor
 from renamer import Renamer
 import requestISBN
-from pprint import pprint
 
+from pprint import pprint
+from tqdm import tqdm
 
 class Main:
     def __init__(self):
@@ -36,18 +40,10 @@ class Main:
         # self.renamer.rename(new_dict)
 
         return new_books_dict
-        """
-        for old_path, new_name in new_dict.items():
-            print("Processing:", old_path)
-            if os.path.exists(old_path):
-                self.renamer.rename({old_path: new_name})
-            else:
-                print("File not found:", old_path)
-        """
 
     def main(self, args):
         # path_isbn_dict, number_of_files = self.extractor.extractISBNs(args.path)
-        path_isbn_dict = self.extractor.extractISBNs(args.path)
+        path_isbn_dict = self.extractor.extract_ISBNs(args.path)
         self.path_isbn_dict = path_isbn_dict  # store path_isbn_dict as an attribute
         # print(f"\nNumber of ISBNs found: {(len(path_isbn_dict))}/{number_of_files}\n")
         # pprint(path_isbn_dict)
@@ -65,14 +61,16 @@ class Main:
         # print(google_books_dict)
 
         if len(google_books_dict) >= 1:
-            self.renamer.rename(google_books_dict)
+            with tqdm(total=len(google_books_dict),desc="Renaming files") as pbar:
+                self.renamer.rename(google_books_dict, pbar.update)
 
         if type(json_list_openlib) == list and len(json_list_openlib) >= 1:
             try:
                 self.json_list_openlib = json_list_openlib
                 new_books_dict = self.openlib_isbn()
                 if new_books_dict is not None:
-                    self.renamer.rename(new_books_dict)
+                    with tqdm(total=len(new_books_dict),desc="Renaming files") as pbar:
+                        self.renamer.rename(new_books_dict, pbar.update)
                     self.json_list_openlib = []
 
             except SystemError as e:
@@ -84,37 +82,12 @@ class Main:
             )
 
 
-"""
-def main(args):
-    path_isbn_dict, number_of_files = extractor.extractISBNs(args.path)
-    print(f"\nNumber of ISBNs found: {(len(path_isbn_dict))}/{number_of_files}\n")
-    pprint(path_isbn_dict)
-    print()
-    isbns = requestISBN.splitDict(path_isbn_dict)
-    # print(isbns)
-    modified = requestISBN.removeDashes(isbns)
-    print(f"Modified ISBN: {modified} \n")
-    json, json_openlib = requestISBN.requestISBN(modified)
-    # pprint(json_openlib)
-    # pprint(json)
-    google_books_dict = requestISBN.sortJson(json)
-    books_dict = requestISBN.sort_json_dict(google_books_dict, path_isbn_dict)
-    # print(books_dict)
-
-    if len(books_dict) >= 1:
-        renamer.rename(books_dict)
-
-    if type(json_openlib) == list and len(json_openlib) >= 1:
-        try:
-            openlib_isbn()
-
-        except SystemError as e:
-            print("There is a problem with the OpenLibrary API", e)
-
-    else:
-        print(f"All {len(path_isbn_dict)} ISBNs were found in the Google Books API\n")
-"""
-
-
 if __name__ == "__main__":
-    Main().main(Main().args())
+    main = Main()
+    args = main.args()
+    main.main(args)
+    """
+    cProfile.run("main.main(args)", "profile")
+    stats = pstats.Stats("profile")
+    stats.sort_stats("cumulative").print_stats()
+    """
