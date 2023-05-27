@@ -92,10 +92,8 @@ class RequestISBN:
                     json_list_openlib.append(data_open)
                     self.fallback_isbn.append(isbn)
                 except Exception as e:
-                    # global invalid_isbn
                     self.invalid_isbn.append(isbn)
-                    print(f"Invalid ISBN: {self.invalid_isbn}")
-                    raise e
+                    print(f"Error: {e} indicates invalid ISBN: {self.invalid_isbn}")
                     # print(data)
             url_list.append(url)
             json_list.append(data)

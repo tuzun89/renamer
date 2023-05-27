@@ -104,7 +104,6 @@ class Main:
 if __name__ == "__main__":
     main = Main()
     args = main.parse_args()
-    print(f"\nProcessing files in directory --> {args.path}\n")
     main.main(args)
     """
     cProfile.run("main.main(args)", "profile")
