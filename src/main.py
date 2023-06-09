@@ -1,8 +1,10 @@
 import argparse
+import sys
 
 from extractor import Extractor
 from renamer import Renamer
 from request_ISBN import RequestISBN
+from find_isbn import FindISBN
 
 
 class Main:
@@ -11,7 +13,10 @@ class Main:
         self.renamer = Renamer()
         self.args = self.parse_args()
         self.path_isbn_dict = self.extractor.extract_ISBNs(self.args.path)
+        self.not_isbn_file_path = self.extractor.not_isbn_file_path[:]
+        # print(self.not_isbn_file_path)
         self.isbn_request = RequestISBN(self.path_isbn_dict)
+        self.find = FindISBN()
 
     def parse_args(self):
         """
@@ -33,6 +38,15 @@ class Main:
         print(
             f"{len(self.isbn_request.fallback_isbn)}no fallback ISBN(s) detected: {self.isbn_request.fallback_isbn} --> ",
             f"Number of ISBN(s) found in the OpenLibrary API: {len(self.json_list_openlib[:])}no \n",
+        )
+
+    def google_results_summary(self, google_books_dict):
+        """
+        prints output from google_books_dict to console
+        """
+        print(
+            f"Number of ISBN(s) found on Google Book API: {len(google_books_dict)}no --> ",
+            #f"Number of files moved: {self.move_count}no\n",
         )
 
     def openlib_isbn(self):
@@ -76,12 +90,15 @@ class Main:
         # pprint(json)
         books_list = self.isbn_request.sort_json(json_list)
         filtered_dict, included_dict = self.isbn_request.combine_dict()
-        google_books_dict = self.isbn_request.sort_json_dict(books_list, included_dict)
+        google_books_dict = self.isbn_request.sort_json_dict(
+            books_list, included_dict
+        )
         # print(google_books_dict)
 
         if len(google_books_dict) >= 1:
             # with tqdm(total=len(google_books_dict),desc="Google Books API renaming files") as pbar:
             self.renamer.rename(google_books_dict)  # pbar.update)
+            self.google_results_summary(google_books_dict)
 
         if type(json_list_openlib) == list and len(json_list_openlib) >= 1:
             try:
@@ -99,7 +116,10 @@ class Main:
             print(
                 f"\nAll {len(self.path_isbn_dict)} ISBNs were found in the Google Books API\n"
             )
-
+        
+        self.find.file_mover(self.not_isbn_file_path)
+        
+        sys.exit()
 
 if __name__ == "__main__":
     main = Main()

@@ -70,7 +70,7 @@ class RequestISBN:
 
         iterates over the list of ISBNs and requests book data from Google API
         if no data is found, the ISBN is checked with the OpenLib API
-        finally if the ISBN is invalied added to a list of invalid ISBNs (global)
+        finally if the ISBN is invalid its added to a list of invalid ISBNs
 
         returns two lists of JSON objects (one for Google API and one for OpenLib API)
         """
@@ -93,7 +93,7 @@ class RequestISBN:
                     self.fallback_isbn.append(isbn)
                 except Exception as e:
                     self.invalid_isbn.append(isbn)
-                    print(f"Error: {e} indicates invalid ISBN: {self.invalid_isbn}")
+                    print(f"\nError: {e} indicates invalid ISBN: {self.invalid_isbn}\n")
                     # print(data)
             url_list.append(url)
             json_list.append(data)
@@ -105,7 +105,7 @@ class RequestISBN:
     def sort_json(self, json_list):
         """
         sorts JSON objects and returns a list of book names and authors
-        of books that are found in Google API
+        for books that are found in Google API
 
         returns a list of file (book) names of the form "author_title.pdf"
 
