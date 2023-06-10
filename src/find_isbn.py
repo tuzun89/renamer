@@ -2,6 +2,9 @@ import re
 import os
 import shutil
 import threading
+from multiprocessing import (
+    Manager,
+)  # Import the Manager object from the multiprocessing module as lock can't be pickled in threading
 
 import PyPDF2
 from PyPDF2.errors import PdfReadError
@@ -16,7 +19,7 @@ from pdfminer.high_level import extract_text as fallback_extract_text
 class FindISBN:
     def __init__(self) -> None:
         self.isbn: str = None
-        self.not_isbn: list[str] = []
+        self.not_isbn: str = None
         self.move_count: int = 0
         # ISBN number maybe of 2no formats (-13 or -10) and
         # the number might not be called up as ISBN on any given page
@@ -25,7 +28,7 @@ class FindISBN:
         self.isbn_pattern: str = re.compile(
             r"(?P<isbn>((?:(?<=ISBN[013: ]))?(97[89])-?(\d{1,5})-?(\d{1,7})-?(\d{1,6})-([\dXx{1}])|(0-\d{2}-?\d{5,}-?[\dXx{1}])|(978)[0-1+]\d{9}))"
         )
-        self.lock = threading.Lock()
+        self.lock = Manager().Lock()
 
     def analyse_pdf(self, path):
         """
@@ -67,9 +70,9 @@ class FindISBN:
                         break
                 else:
                     # self.move_counter()
-                    self.not_isbn.append(path)
+                    self.not_isbn = path
                     # print("\nNo ISBN found in", self.not_isbn)
-                    # self.file_mover(path)
+                    self.file_mover(self.not_isbn)
 
             # When working files and using "with open" the file is closed automatically.
             # pdf_file.close() --> not needed
@@ -83,24 +86,24 @@ class FindISBN:
         """
         returns number of files moved
         """
-        with self.lock:
-            self.move_count += 1
-            print(f"Number of files moved: {self.move_count}")
-            return self.move_count
+        # with self.lock:
+        self.move_count += 1
+        print(f"Number of files moved: {self.move_count}")
+        return self.move_count
 
     def get_isbn(self):
         """
         returns filepath if ISBN number is found
         """
-        with self.lock:
-            return self.isbn
+        # with self.lock:
+        return self.isbn
 
     def get_not_isbn(self):
         """
         returns list of filepaths where ISBN number is NOT found
         """
-        with self.lock:
-            return self.not_isbn
+        # with self.lock:
+        return self.not_isbn
 
     def validate_isbn(self, isbn: str) -> bool:
         """
@@ -109,7 +112,7 @@ class FindISBN:
         """
         pass
 
-    def file_mover(self, not_isbn):
+    def file_mover(self, not_isbn: str) -> int:
         """
         moves files where no ISBN found to a new directory
         under parent directory called "no_isbns_found"
@@ -117,31 +120,30 @@ class FindISBN:
         to-do: keep track of number of files moved
         """
         # not_isbn = self.get_not_isbn()
-        with self.lock:
 
-            for path in not_isbn:
+        # with self.lock:
+        print(f"Not_isbn path passed to 'file_mover' method: {not_isbn}")
+        # for path in not_isbn:
+        if os.path.exists(not_isbn):
+            file_path = os.path.abspath(not_isbn)
+            file_name = os.path.basename(file_path)
+            file_dir = os.path.dirname(file_path)
+            new_dir = os.path.join(file_dir, "no_isbns_found")
 
-                if not_isbn and os.path.exists(path):
+            if not os.path.exists(new_dir):
+                # print(f"Directory {new_dir} already exists")
+                try:
+                    os.mkdir(new_dir)
+                except OSError as e:
+                    print(f"Error creating directory: {new_dir}")
+                    raise e
 
-                    file_path = os.path.abspath(path)
-                    file_name = os.path.basename(file_path)
-                    file_dir = os.path.dirname(file_path)
-                    new_dir = os.path.join(file_dir, "no_isbns_found")
+            new_path = os.path.join(new_dir, file_name)
+            # print(f"Moving file {file_name} to directory {new_path}")
+            # shutil.move() moves a file or directory (src) to another location (dst)
+            # high-level operation on files and collections of files
+            # no need for low level os operations where new file names are created
+            # print(f"File {file_name} moved to {new_path}")
+            shutil.move(file_path, new_path)
 
-                    if not os.path.exists(new_dir):
-                        # print(f"Directory {new_dir} already exists")
-                        try:
-                            os.mkdir(new_dir)
-                        except OSError as e:
-                            print(f"Error creating directory: {new_dir}")
-                            raise e
-
-                    new_path = os.path.join(new_dir, file_name)
-                    # print(f"Moving file {file_name} to directory {new_path}")
-                    # shutil.move() moves a file or directory (src) to another location (dst)
-                    # high-level operation on files and collections of files
-                    # no need for low level os operations where new file names are created
-                    # print(f"File {file_name} moved to {new_path}")
-                    shutil.move(file_path, new_path)
-
-            return self.move_counter()
+        return self.move_counter()

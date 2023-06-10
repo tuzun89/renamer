@@ -9,14 +9,15 @@ from find_isbn import FindISBN
 
 class Main:
     def __init__(self):
+        self.find = FindISBN()
         self.extractor = Extractor()
         self.renamer = Renamer()
         self.args = self.parse_args()
         self.path_isbn_dict = self.extractor.extract_ISBNs(self.args.path)
-        self.not_isbn_file_path = self.extractor.not_isbn_file_path[:]
+        # self.not_isbn_file_path = self.extractor.not_isbn_file_path[:]
+
         # print(self.not_isbn_file_path)
         self.isbn_request = RequestISBN(self.path_isbn_dict)
-        self.find = FindISBN()
 
     def parse_args(self):
         """
@@ -44,10 +45,7 @@ class Main:
         """
         prints output from google_books_dict to console
         """
-        print(
-            f"Number of ISBN(s) found on Google Book API: {len(google_books_dict)}no --> ",
-            #f"Number of files moved: {self.move_count}no\n",
-        )
+        print(f"Number of ISBN(s) found on Google Book API: {len(google_books_dict)}no")
 
     def openlib_isbn(self):
         """
@@ -90,9 +88,7 @@ class Main:
         # pprint(json)
         books_list = self.isbn_request.sort_json(json_list)
         filtered_dict, included_dict = self.isbn_request.combine_dict()
-        google_books_dict = self.isbn_request.sort_json_dict(
-            books_list, included_dict
-        )
+        google_books_dict = self.isbn_request.sort_json_dict(books_list, included_dict)
         # print(google_books_dict)
 
         if len(google_books_dict) >= 1:
@@ -111,15 +107,6 @@ class Main:
 
             except SystemError as e:
                 print("There is a problem with the OpenLibrary API", e)
-
-        else:
-            print(
-                f"\nAll {len(self.path_isbn_dict)} ISBNs were found in the Google Books API\n"
-            )
-        
-        self.find.file_mover(self.not_isbn_file_path)
-        
-        sys.exit()
 
 if __name__ == "__main__":
     main = Main()
