@@ -6,6 +6,8 @@ from renamer import Renamer
 from request_ISBN import RequestISBN
 from find_isbn import FindISBN
 
+from pprint import pprint
+
 
 class Main:
     def __init__(self):
@@ -18,6 +20,11 @@ class Main:
 
         # print(self.not_isbn_file_path)
         self.isbn_request = RequestISBN(self.path_isbn_dict)
+        self.google_books_dict = {}
+    
+    def get_google_books_dict(self):
+        # Access the google_books_dict attribute
+        print(self.google_books_dict.keys())
 
     def parse_args(self):
         """
@@ -45,7 +52,9 @@ class Main:
         """
         prints output from google_books_dict to console
         """
-        print(f"Number of ISBN(s) found on Google Book API: {len(google_books_dict)}no")
+        print(
+            f"\nNumber of ISBN(s) found on Google Book API: {len(google_books_dict)}no"
+        )
 
     def openlib_isbn(self):
         """
@@ -81,20 +90,82 @@ class Main:
         # pprint(path_isbn_dict)
         isbns = self.isbn_request.split_dict()
         # print(isbns)
-        modified = self.isbn_request.remove_dashes(isbns)
+        modified_isbns = self.isbn_request.remove_dashes(isbns)
         # print(f"Modified ISBN: {modified} \n")
-        json_list, json_list_openlib = self.isbn_request.request_book_by_ISBN(modified)
+        (
+            json_list,
+            json_list_openlib,
+            final_modified_isbns,
+        ) = self.isbn_request.request_book_by_ISBN(modified_isbns)
+        print(f"Final modified ISBNs: {final_modified_isbns}\n")
+        print(f"Final modified ISBNs length: {len(final_modified_isbns)}\n")
         # pprint(json_openlib)
         # pprint(json)
         books_list = self.isbn_request.sort_json(json_list)
-        filtered_dict, included_dict = self.isbn_request.combine_dict()
-        google_books_dict = self.isbn_request.sort_json_dict(books_list, included_dict)
-        # print(google_books_dict)
+        pprint(f"Books list: {books_list}\n", width=120)
+        print(f"Books list length: {len(books_list)}\n")
 
-        if len(google_books_dict) >= 1:
+        if len(final_modified_isbns) >= 1:
+            # Create a new dictionary without the invalid ISBNs
+            self.modified_path_isbn_dict = self.isbn_request.get_modify_path_isbn_dict(
+                final_modified_isbns
+            )
+            pprint(
+                f"Modified path ISBN dictionary: {self.modified_path_isbn_dict}\n",
+                width=120,
+            )
+            print(
+                f"\nModified path ISBN dictionary length: {len(self.modified_path_isbn_dict)}\n"
+            )
+            # Pass new dictionary to combine_dict method
+            filtered_dict, included_dict = self.isbn_request.combine_dict(
+                self.modified_path_isbn_dict
+            )
+        else:
+            # If there are no invalid ISBNs, pass original dictionary to combine_dict method
+            filtered_dict, included_dict = self.isbn_request.combine_dict()
+
+        print(
+            f"State of 'self.modified_path_isbn_dict' before the sort_json_dict() call: {self.modified_path_isbn_dict.keys()}"
+        )
+        print(
+            f"State of 'google_books_dict' before the sort_json_dict() call: {self.get_google_books_dict()}"
+        )
+
+        self.google_books_dict = self.isbn_request.sort_json_dict(books_list, included_dict)
+
+        print(
+            f"State of 'self.modified_path_isbn_dict' after the sort_json_dict() call: {self.modified_path_isbn_dict.keys()}"
+        )
+        print(
+            f"State of 'google_books_dict' after the sort_json_dict() call: {self.get_google_books_dict()}"
+        )
+
+        if len(self.google_books_dict) >= 1:
             # with tqdm(total=len(google_books_dict),desc="Google Books API renaming files") as pbar:
-            self.renamer.rename(google_books_dict)  # pbar.update)
-            self.google_results_summary(google_books_dict)
+            pprint(f"Google Books dictionary: {self.google_books_dict}\n", width=120)
+            # self.renamer.rename(google_books_dict)  # pbar.update)
+            self.google_results_summary(self.google_books_dict)
+
+            missing_keys = set(self.modified_path_isbn_dict.keys()) - set(
+                self.google_books_dict.keys()
+            )
+
+            for key in missing_keys:
+                print(
+                    f"\n{key} is missing with value {self.modified_path_isbn_dict[key]}"
+                )
+
+            # Compare the keys of the dictionaries
+            if set(self.modified_path_isbn_dict.keys()) != set(
+                self.google_books_dict.keys()
+            ):
+                print("The dictionaries have different keys")
+            else:
+                # Compare the values of the dictionaries
+                for key in self.modified_path_isbn_dict:
+                    if self.modified_path_isbn_dict[key] != self.google_books_dict[key]:
+                        print(f"\nThe value for key {key} is different")
 
         if type(json_list_openlib) == list and len(json_list_openlib) >= 1:
             try:
@@ -107,6 +178,7 @@ class Main:
 
             except SystemError as e:
                 print("There is a problem with the OpenLibrary API", e)
+
 
 if __name__ == "__main__":
     main = Main()

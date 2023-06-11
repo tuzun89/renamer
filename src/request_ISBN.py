@@ -1,4 +1,7 @@
 import requests
+import json
+
+from pprint import pprint
 
 
 class RequestISBN:
@@ -20,7 +23,22 @@ class RequestISBN:
         # print(isbn)
         return isbn
 
-    def combine_dict(self):
+    def get_modify_path_isbn_dict(
+        self, final_modified_isbn: list[str]
+    ) -> dict[str:str]:
+        """
+        modifies path_isbn_dict to contain only valid ISBNs
+        """
+        modified_path_isbn_dict = {}
+        for key, value in self.path_isbn_dict.items():
+            value = value.replace("-", "").replace(" ", "").replace("ISBN", "")
+
+            if value in final_modified_isbn:
+                modified_path_isbn_dict.update({key: value})
+
+        return modified_path_isbn_dict
+
+    def combine_dict(self, modified_path_isbn_dict: dict[str:str] = None):
         """
         filters out ISBNs that are not found in Google API and returns 2no dicts
         with contents in accordance with the results of request_book_by_ISBN() method
@@ -28,13 +46,24 @@ class RequestISBN:
         returns filtered_dict(for OpenLib API) and included_dict(for GoogleBooks API)
         """
         included_dict = {}
-        filtered_dict = self.path_isbn_dict.copy()
-        for key, value in self.path_isbn_dict.items():
+        # If modified_path_isbn_dict is empty, then use the original path_isbn_dict
+        if modified_path_isbn_dict is None:
+            filtered_dict = self.path_isbn_dict.copy()
+        else:
+            filtered_dict = modified_path_isbn_dict.copy()
+
+        keys_to_delete = []
+        for key, value in filtered_dict.items():
             if value not in self.fallback_isbn:
-                del filtered_dict[key]
+                keys_to_delete.append(key)
                 included_dict.update({key: value})
             else:
                 pass
+
+        # Delete keys from filtered_dict that are in keys_to_delete list outside of the main loop
+        for key in keys_to_delete:
+            del filtered_dict[key]
+
         # to-do: create a debug mode where helper print statements are shown
         # as per the below if statements
         if filtered_dict:
@@ -42,10 +71,15 @@ class RequestISBN:
             # print(f"Filtered dictionary: {filtered_dict}\n")
         if included_dict:
             pass
-            # print(f"Included dictionary: {included_dict}\n")
+            # pprint(f"Included dictionary: {included_dict}\n", width=120)
+            # print(f"Included dictionary length: {len(included_dict)}\n")
         if self.fallback_isbn:
             pass
             # print(f"Fallback ISBN: {self.fallback_isbn}")
+        if self.invalid_isbn:
+            pass
+            # print(f"Invalid ISBN: {self.invalid_isbn}\n")
+
         return filtered_dict, included_dict
 
     def remove_dashes(self, isbn):
@@ -54,16 +88,16 @@ class RequestISBN:
 
         removes dashes and spaces from ISBNs
         """
-        modified_isbn = []
+        modified_isbns = []
         for i in isbn:
             str(
-                modified_isbn.append(
+                modified_isbns.append(
                     i.replace("-", "").replace(" ", "").replace("ISBN", "")
                 )
             )
-        return modified_isbn
+        return modified_isbns
 
-    def request_book_by_ISBN(self, modified_isbn):
+    def request_book_by_ISBN(self, modified_isbns):
         """
         make sure that you are not connected via VPN or proxy
         as Google API will not work (this may be WSL2 specific)
@@ -77,10 +111,34 @@ class RequestISBN:
         json_list = []
         json_list_openlib = []
         url_list = []
+        final_modifieid_isbns = []
 
-        for isbn in modified_isbn:
-            url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn
-            response = requests.get(url)
+        for isbn in modified_isbns:
+            # Google API URL does not require "ISBN" prefix
+            url = "https://www.googleapis.com/books/v1/volumes?q=" + isbn
+            try:
+                response = requests.get(url)
+                response.raise_for_status() # Raise an exception if the response status code is not 200
+            except json.decoder.JSONDecodeError as e:
+                self.invalid_isbn.append(isbn)
+                # Delete the invalid ISBN from the dictionary, last added key:value pair
+                # self.path_isbn_dict.popitem()
+                # Delete the invalid ISBN from the modified_isbn list
+                modified_isbns.remove(isbn)
+                final_modifieid_isbns = modified_isbns
+                print(
+                    f"\nError: {e} indicates invalid ISBN: {self.invalid_isbn}, skipping...\n"
+                )
+                continue
+            except Exception as e:
+                self.invalid_isbn.append(isbn)
+                # Delete the invalid ISBN from the dictionary
+                # self.path_isbn_dict.popitem()
+                # Delete the invalid ISBN from the modified_isbn list
+                modified_isbns.remove(isbn)
+                final_modifieid_isbns = modified_isbns
+                print(f"\nError: {e} indicates invalid ISBN: {self.invalid_isbn}\n")
+                continue
             data = response.json()
             # print(data)
             if data.get("totalItems") == 0:
@@ -88,19 +146,33 @@ class RequestISBN:
                 try:
                     url = "https://openlibrary.org/isbn/" + isbn + ".json"
                     response = requests.get(url)
+                    response.raise_for_status() # Raise an exception if the response status code is not 200
                     data_open = response.json()
                     json_list_openlib.append(data_open)
                     self.fallback_isbn.append(isbn)
+
                 except Exception as e:
                     self.invalid_isbn.append(isbn)
-                    print(f"\nError: {e} indicates invalid ISBN: {self.invalid_isbn}\n")
+                    # Delete the invalid ISBN from the dictionary, last added key:value pair
+                    # self.path_isbn_dict.popitem()
+                    # Delete the invalid ISBN from the modified_isbn list
+                    modified_isbns.remove(isbn)
+                    final_modifieid_isbns = modified_isbns
+                    print(
+                        f"\nError: {e} indicates invalid ISBN: {self.invalid_isbn}, skipping...\n"
+                    )
+                    continue
                     # print(data)
             url_list.append(url)
             json_list.append(data)
 
-        # print(json_list)
-        # print(url_list)
-        return json_list, json_list_openlib
+        # print(f"JSON list length: {len(json_list)}")
+        # print(f"URL list: {url_list}")
+        # print(f"URL list length: {len(url_list)}")
+        
+        # These all return 1 less item than the number of ISBNs found.
+
+        return json_list, json_list_openlib, final_modifieid_isbns
 
     def sort_json(self, json_list):
         """
@@ -130,7 +202,6 @@ class RequestISBN:
                         book_name = author_name + "_" + volumeInfo["title"] + ".pdf"
                         # book_name = re.sub(r'[^A-Za-z0-9]+', '_', book_name)
                         books_list.append(book_name)
-                    # print(books)
 
         except Exception as e:
             print(f"Error: {e}")
